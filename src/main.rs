@@ -155,9 +155,6 @@ mod handle {
             for page in start..=end {
                 match client.pic_like_get(&cid, page).await {
                     Ok(res) => {
-                        if options.until_end {
-                            end = res.pages;
-                        }
                         for comic in res.iter() {
                             println!("{}", Console::format_recommend_pic_like(comic));
                         }
