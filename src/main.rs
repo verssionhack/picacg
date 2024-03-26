@@ -108,7 +108,7 @@ mod handle {
                 }
                 if page < end {
                     page += 1;
-                } else if page == end {
+                } else {
                     break;
                 }
             }
@@ -149,7 +149,7 @@ mod handle {
                     }
                     if page < end {
                         page += 1;
-                    } else if page == end {
+                    } else {
                         break;
                     }
                 }
@@ -184,7 +184,7 @@ mod handle {
                 }
                 if page < end {
                     page += 1;
-                } else if page == end {
+                } else {
                     break;
                 }
             }
@@ -221,7 +221,7 @@ mod handle {
                 }
                 if page < end {
                     page += 1;
-                } else if page == end {
+                } else {
                     break;
                 }
             }
@@ -257,7 +257,7 @@ mod handle {
                 }
                 if page < end {
                     page += 1;
-                } else if page == end {
+                } else {
                     break;
                 }
             }
@@ -308,7 +308,7 @@ mod handle {
                 }
                 if page < end {
                     page += 1;
-                } else if page == end {
+                } else {
                     break;
                 }
             }
