@@ -85,7 +85,8 @@ mod handle {
             _save_dir: Option<String>,
         ) {
             let mut end = end.unwrap_or(start);
-            for page in start..=end {
+            let mut page = start;
+            loop {
                 match client.comic_eps(&cid, page).await {
                     Ok(res) => {
                         if options.until_end {
@@ -105,6 +106,11 @@ mod handle {
                         println!("{}", Console::format_error(&err))
                     }
                 }
+                if page < end {
+                    page += 1;
+                } else if page == end {
+                    break;
+                }
             }
         }
         pub async fn pages(
@@ -120,7 +126,8 @@ mod handle {
             let mut end_index = end.unwrap_or(start_index);
             for page_index in start_index..=end_index {
                 let mut end = end.unwrap_or(start);
-                for page in start..=end {
+                let mut page = start;
+                loop {
                     match client.comic_pages(&cid, page_index, page).await {
                         Ok(res) => {
                             if options.until_end {
@@ -140,6 +147,11 @@ mod handle {
                             println!("{}", Console::format_error(&err))
                         }
                     }
+                    if page < end {
+                        page += 1;
+                    } else if page == end {
+                        break;
+                    }
                 }
             }
         }
@@ -152,7 +164,8 @@ mod handle {
             _save_dir: Option<String>,
         ) {
             let mut end = end.unwrap_or(start);
-            for page in start..=end {
+            let mut page = start;
+            loop {
                 match client.pic_like_get(&cid, page).await {
                     Ok(res) => {
                         for comic in res.iter() {
@@ -169,6 +182,11 @@ mod handle {
                         println!("{}", Console::format_error(&err))
                     }
                 }
+                if page < end {
+                    page += 1;
+                } else if page == end {
+                    break;
+                }
             }
         }
         pub async fn search(
@@ -180,7 +198,8 @@ mod handle {
             _save_dir: Option<String>,
         ) {
             let mut end = end.unwrap_or(start);
-            for page in start..=end {
+            let mut page = start;
+            loop {
                 match client.search(&keyword, page, Sort::MaxLike).await {
                     Ok(res) => {
                         if options.until_end {
@@ -200,6 +219,11 @@ mod handle {
                         println!("{}", Console::format_error(&err))
                     }
                 }
+                if page < end {
+                    page += 1;
+                } else if page == end {
+                    break;
+                }
             }
         }
         pub async fn favourites(
@@ -210,7 +234,8 @@ mod handle {
             _save_dir: Option<String>,
         ) {
             let mut end = end.unwrap_or(start);
-            for page in start..=end {
+            let mut page = start;
+            loop {
                 match client.favorites(page, Sort::DescByDate).await {
                     Ok(res) => {
                         if options.until_end {
@@ -229,6 +254,11 @@ mod handle {
                     Err(err) => {
                         println!("{}", Console::format_error(&err))
                     }
+                }
+                if page < end {
+                    page += 1;
+                } else if page == end {
+                    break;
                 }
             }
         }
@@ -258,7 +288,8 @@ mod handle {
             _save_dir: Option<String>,
         ) {
             let end = end.unwrap_or(start);
-            for page in start..=end {
+            let mut page = start;
+            loop {
                 match client.games(page).await {
                     Ok(res) => {
                         for game in res.iter() {
@@ -274,6 +305,11 @@ mod handle {
                     Err(err) => {
                         println!("{}", Console::format_error(&err))
                     }
+                }
+                if page < end {
+                    page += 1;
+                } else if page == end {
+                    break;
                 }
             }
         }
