@@ -15,6 +15,8 @@ pub struct GlobalOptions {
     pub save_dir: String,
     #[clap(short='d', long="download", default_value="false", action=ArgAction::SetTrue)]
     pub download: bool,
+    #[clap(short='e', long="end", default_value="false", action=ArgAction::SetTrue)]
+    pub until_end: bool
 }
 
 #[derive(Parser, Debug, Clone)]

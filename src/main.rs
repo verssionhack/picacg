@@ -84,10 +84,13 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
-            let end = end.unwrap_or(start);
+            let mut end = end.unwrap_or(start);
             for page in start..=end {
                 match client.comic_eps(&cid, page).await {
                     Ok(res) => {
+                        if options.until_end {
+                            end = res.pages;
+                        }
                         for ep in res.iter() {
                             println!("{}", Console::format_ep(ep));
                         }
@@ -114,12 +117,15 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
-            let end_index = end.unwrap_or(start_index);
+            let mut end_index = end.unwrap_or(start_index);
             for page_index in start_index..=end_index {
-                let end = end.unwrap_or(start);
+                let mut end = end.unwrap_or(start);
                 for page in start..=end {
                     match client.comic_pages(&cid, page_index, page).await {
                         Ok(res) => {
+                            if options.until_end {
+                                end = res.pages;
+                            }
                             for page in res.iter() {
                                 println!("{}", Console::format_page(page));
                             }
@@ -145,10 +151,13 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
-            let end = end.unwrap_or(start);
+            let mut end = end.unwrap_or(start);
             for page in start..=end {
                 match client.pic_like_get(&cid, page).await {
                     Ok(res) => {
+                        if options.until_end {
+                            end = res.pages;
+                        }
                         for comic in res.iter() {
                             println!("{}", Console::format_recommend_pic_like(comic));
                         }
@@ -173,10 +182,13 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
-            let end = end.unwrap_or(start);
+            let mut end = end.unwrap_or(start);
             for page in start..=end {
                 match client.search(&keyword, page, Sort::MaxLike).await {
                     Ok(res) => {
+                        if options.until_end {
+                            end = res.pages;
+                        }
                         for row in res.iter() {
                             println!("{}", Console::format_searchrow(row));
                             if options.download {
@@ -200,10 +212,13 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
-            let end = end.unwrap_or(start);
+            let mut end = end.unwrap_or(start);
             for page in start..=end {
                 match client.favorites(page, Sort::DescByDate).await {
                     Ok(res) => {
+                        if options.until_end {
+                            end = res.pages;
+                        }
                         for comic in res.iter() {
                             println!("{}", Console::format_comic(comic));
                             if options.download {
