@@ -73,8 +73,8 @@ impl Console {
 
     pub fn format_recommend_pic_like(value: &RecommendPicLike) -> String {
         format!(
-            "Id[{}] Title[{}] Picture[{}]",
-            &value.id, &value.title, &value.pic
+            "Id[{}] Picture[{}] Title[{}]",
+            &value.id, &value.pic, &value.title
         )
     }
 
@@ -88,10 +88,12 @@ impl Console {
 
     pub fn format_searchrow(value: &SearchRow) -> String {
         format!(
-            "Id[{}] Title[{}] Author[{}] Likes[{}] Views[{}]",
-            value.id, value.title, value.author,
+            "Id[{}] Author[{}] Likes[{}] Views[{}] Title[{}]",
+            value.id, 
+            value.author,
             value.total_likes,
             value.total_views,
+            value.title, 
         )
     }
 
@@ -104,7 +106,7 @@ impl Console {
     }
 
     pub fn format_game_info(value: &GameInfo) -> String {
-        format!("Id[{}] Title[{}] Size[{}MB] Likes[{}]", value.id, value.title, value.android_size, value.likes_count)
+        format!("Id[{}] Size[{}MB] Likes[{}] Title[{}]", value.id, value.android_size, value.likes_count, value.title)
     }
 
     pub fn format_picture_download_resource(value: &PictureDownloadResounce) -> String {
@@ -133,13 +135,13 @@ impl Console {
 
     pub fn format_comic(value: &Comic) -> String {
         format!(
-            "Id[{}] Title[{}] Author[{}] Likes[{}] Views[{}] Finished[{}]",
+            "Id[{}] Author[{}] Likes[{}] Views[{}] Finished[{}] Title[{}]",
             &value.id,
-            &value.title,
             &value.author,
             &value.total_likes,
             &value.total_views,
             &value.finished,
+            &value.title,
         )
     }
 
