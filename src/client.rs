@@ -22,6 +22,29 @@ use tokio::{
 };
 
 
+pub fn to_full_width_char(c: char) -> char {
+    (c as u8 + '？' as u8 - '?' as u8) as char
+}
+
+pub fn path_escape(path: &str) -> String {
+    let chars = [
+        '\\',
+        '/',
+        ':',
+        '*',
+        '?',
+        '"',
+        '<',
+        '>',
+        '|',
+    ];
+    let mut path = path.to_string();
+    for c in chars {
+        path = path.replace(c, &to_full_width_char(c).to_string());
+    }
+    path
+}
+
 use crate::console::Console;
 
 pub struct Client {
@@ -75,7 +98,7 @@ impl Client {
         if !output_dir.exists() {
             fs::create_dir_all(&output_dir).await?;
         }
-        let mut file_path = output_dir.join(&game_info.title);
+        let mut file_path = output_dir.join(path_escape(&game_info.title));
         let download_info = self
             .game_download_info_get(&game_info.android_links[0])
             .await?;
@@ -92,6 +115,11 @@ impl Client {
         let request = self
             .client
             .get(download_url)
+            .header("referer", &game_info.android_links[0]);
+
+        let request_header = self
+            .client
+            .head(download_url)
             .header("referer", &game_info.android_links[0]);
 
         let _length = Arc::new(RwLock::new(Size::default()));
@@ -218,7 +246,7 @@ impl Client {
                 let comics_completed_length = _comics_completed_length.clone();
                 let comics_total_length = _comics_total_length.clone();
                 let comics_completed_total = _comics_completed_total.clone();
-                let file_path = sub_savepath.join(comic.media.filename());
+                let file_path = sub_savepath.join(path_escape(comic.media.filename()));
                 let request = self.get(comic.media.download_url().as_str());
                 tokio::spawn(async move {
                     let mut download_handle = loop {
