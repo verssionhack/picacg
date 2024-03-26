@@ -161,6 +161,7 @@ impl Client {
             }
             tokio::time::sleep(Duration::from_millis(200)).await;
         }
+        Console::clear_line();
         Ok(())
     }
 
@@ -265,6 +266,7 @@ impl Client {
                 stdout().flush().unwrap();
                 tokio::time::sleep(Duration::from_millis(50)).await;
             }
+            Console::clear_line();
             if !pages.has_next() {
                 break;
             }
