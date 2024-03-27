@@ -7,7 +7,7 @@ use console::Console;
 use picacg::command::{ComicOptions, GameOptions, GlobalOptions, SubCommand, UserOptions};
 use reqwest::Proxy;
 use std::{
-    io::{stdout, Write, stdin},
+    io::{stdout, Write, stdin}, time::Duration,
 };
 
 mod client;
@@ -383,6 +383,8 @@ async fn main() {
     } else if let Some(ref v) = options.http_proxy {
         client.set_proxy(Some(Proxy::http(v).unwrap())).unwrap();
     }
+
+    client.set_timeout(Some(Duration::from_secs(5))).unwrap();
 
     let mut user = String::new();
     let mut passwd = String::new();

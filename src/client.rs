@@ -84,11 +84,28 @@ impl Client {
     pub fn post(&self, url: &str) -> RequestBuilder {
         self.client.post(url)
     }
+
+    fn reset_client(&mut self) -> Result<(), Error> {
+        let mut client_builder = ClientBuilder::new();
+        if let Some(proxy) = self.api.proxy() {
+            client_builder = client_builder.proxy(proxy.clone());
+        }
+        if let Some(timeout) = self.api.timeout() {
+            client_builder = client_builder.timeout(timeout.clone());
+        }
+        self.client = client_builder.build()?;
+        Ok(())
+    }
+
+    pub fn set_timeout(&mut self, timeout: Option<Duration>) -> Result<(), Error> {
+        self.api.set_timeout(timeout.clone())?;
+        self.reset_client()?;
+        Ok(())
+    }
+
     pub fn set_proxy(&mut self, proxy: Option<Proxy>) -> Result<(), Error> {
         self.api.set_proxy(proxy.clone())?;
-        if let Some(proxy) = proxy {
-            self.client = ClientBuilder::new().proxy(proxy).build()?;
-        }
+        self.reset_client()?;
         Ok(())
     }
 
