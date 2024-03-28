@@ -287,7 +287,7 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
-            let end = end.unwrap_or(start);
+            let mut end = end.unwrap_or(start);
             let mut page = start;
             loop {
                 match client.games(page).await {
