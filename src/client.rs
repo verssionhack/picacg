@@ -23,7 +23,7 @@ use tokio::{
 
 
 pub fn to_full_width_char(c: char) -> char {
-    (c as u8 + '？' as u8 - '?' as u8) as char
+    char::from_u32(c as u32 + '？' as u32 - '?' as u32).unwrap()
 }
 
 pub fn path_escape(path: &str) -> String {
