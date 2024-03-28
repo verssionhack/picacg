@@ -292,6 +292,9 @@ mod handle {
             loop {
                 match client.games(page).await {
                     Ok(res) => {
+                        if options.until_end {
+                            end = res.pages;
+                        }
                         for game in res.iter() {
                             println!("{}", Console::format_game(game));
                             if options.download {
@@ -372,6 +375,7 @@ mod handle {
     }
 }
 
+
 #[tokio::main]
 async fn main() {
     let options = GlobalOptions::parse();
@@ -384,7 +388,7 @@ async fn main() {
         client.set_proxy(Some(Proxy::http(v).unwrap())).unwrap();
     }
 
-    client.set_timeout(Some(Duration::from_secs(5))).unwrap();
+    //client.set_timeout(Some(Duration::from_secs(5))).unwrap();
 
     let mut user = String::new();
     let mut passwd = String::new();

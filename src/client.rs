@@ -160,7 +160,7 @@ impl Client {
                     if let Ok(handle) = request
                         .try_clone()
                         .unwrap()
-                        .timeout(Duration::from_secs(5))
+                        //.timeout(Duration::from_secs(5))
                         .header(
                             "range",
                             format!("bytes={}-", completed_length.read().await.as_byte()),
