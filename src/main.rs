@@ -7,7 +7,8 @@ use console::Console;
 use picacg::command::{ComicOptions, GameOptions, GlobalOptions, SubCommand, UserOptions};
 use reqwest::Proxy;
 use std::{
-    io::{stdout, Write, stdin}, time::Duration,
+    io::{stdin, stdout, Write},
+    time::Duration,
 };
 
 mod client;
@@ -18,8 +19,8 @@ mod handle {
     pub mod comic {
         use std::{path::PathBuf, str::FromStr};
 
-        use libpicacg::{Sort};
-        use picacg::{console::Console, command::GlobalOptions};
+        use libpicacg::{error::Error, Sort};
+        use picacg::{command::GlobalOptions, console::Console};
 
         use super::*;
         pub async fn ranking(client: &mut Client, options: &GlobalOptions) {
@@ -28,7 +29,16 @@ mod handle {
                     for comic in res.iter() {
                         println!("{}", Console::format_comic(&comic));
                         if options.download {
-                            while let Err(err) = client.comic_download_eps(&comic.id, &options.save_dir).await {
+                            while let Err(err) = client
+                                .comic_download_eps(&comic.id, &options.save_dir)
+                                .await
+                            {
+                                if let Error::Request(ref e) = err {
+                                    if e.is_body() | e.is_decode() | e.is_builder() | e.is_connect()
+                                    {
+                                        break;
+                                    }
+                                }
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
                             }
@@ -40,14 +50,31 @@ mod handle {
                 }
             }
         }
-        pub async fn metadata(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, _save_dir: &str) {
+        pub async fn metadata(
+            client: &mut Client,
+            options: &GlobalOptions,
+            cids: Vec<String>,
+            _save_dir: &str,
+        ) {
             let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             for cid in cids {
                 match client.comic_metadata(&cid).await {
                     Ok(res) => {
                         println!("{}", Console::format_comic_metadata(&res));
                         if options.download {
-                            while let Err(err) = client.comic_download_eps(&res.metadata.id, save_dir.join(_save_dir).to_str().unwrap() ).await {
+                            while let Err(err) = client
+                                .comic_download_eps(
+                                    &res.metadata.id,
+                                    save_dir.join(_save_dir).to_str().unwrap(),
+                                )
+                                .await
+                            {
+                                if let Error::Request(ref e) = err {
+                                    if e.is_body() | e.is_decode() | e.is_builder() | e.is_connect()
+                                    {
+                                        break;
+                                    }
+                                }
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
                             }
@@ -59,7 +86,12 @@ mod handle {
                 }
             }
         }
-        pub async fn recommended(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, _save_dir: &str) {
+        pub async fn recommended(
+            client: &mut Client,
+            options: &GlobalOptions,
+            cids: Vec<String>,
+            _save_dir: &str,
+        ) {
             let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             for cid in cids {
                 match client.comic_recommended(&cid).await {
@@ -67,7 +99,22 @@ mod handle {
                         for comic in res.iter() {
                             println!("{}", Console::format_comic(&comic));
                             if options.download {
-                                while let Err(err) = client.comic_download_eps(&comic.id, save_dir.join(_save_dir).to_str().unwrap()).await {
+                                while let Err(err) = client
+                                    .comic_download_eps(
+                                        &comic.id,
+                                        save_dir.join(_save_dir).to_str().unwrap(),
+                                    )
+                                    .await
+                                {
+                                    if let Error::Request(ref e) = err {
+                                        if e.is_body()
+                                            | e.is_decode()
+                                            | e.is_builder()
+                                            | e.is_connect()
+                                        {
+                                            break;
+                                        }
+                                    }
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
                                 }
@@ -101,7 +148,19 @@ mod handle {
                             println!("{}", Console::format_ep(ep));
                         }
                         if options.download {
-                            while let Err(err) = client.comic_download_eps(&cid, save_dir.join(_save_dir).to_str().unwrap() ).await {
+                            while let Err(err) = client
+                                .comic_download_eps(
+                                    &cid,
+                                    save_dir.join(_save_dir).to_str().unwrap(),
+                                )
+                                .await
+                            {
+                                if let Error::Request(ref e) = err {
+                                    if e.is_body() | e.is_decode() | e.is_builder() | e.is_connect()
+                                    {
+                                        break;
+                                    }
+                                }
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
                             }
@@ -143,7 +202,22 @@ mod handle {
                                 println!("{}", Console::format_page(page));
                             }
                             if options.download {
-                                while let Err(err) = client.comic_download_eps(&cid, save_dir.join(_save_dir).to_str().unwrap() ).await {
+                                while let Err(err) = client
+                                    .comic_download_eps(
+                                        &cid,
+                                        save_dir.join(_save_dir).to_str().unwrap(),
+                                    )
+                                    .await
+                                {
+                                    if let Error::Request(ref e) = err {
+                                        if e.is_body()
+                                            | e.is_decode()
+                                            | e.is_builder()
+                                            | e.is_connect()
+                                        {
+                                            break;
+                                        }
+                                    }
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
                                 }
@@ -179,7 +253,19 @@ mod handle {
                             println!("{}", Console::format_recommend_pic_like(comic));
                         }
                         if options.download {
-                            while let Err(err) = client.comic_download_eps(&cid, save_dir.join(_save_dir).to_str().unwrap() ).await {
+                            while let Err(err) = client
+                                .comic_download_eps(
+                                    &cid,
+                                    save_dir.join(_save_dir).to_str().unwrap(),
+                                )
+                                .await
+                            {
+                                if let Error::Request(ref e) = err {
+                                    if e.is_body() | e.is_decode() | e.is_builder() | e.is_connect()
+                                    {
+                                        break;
+                                    }
+                                }
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
                             }
@@ -216,7 +302,22 @@ mod handle {
                         for row in res.iter() {
                             println!("{}", Console::format_searchrow(row));
                             if options.download {
-                                while let Err(err) = client.comic_download_eps(&row.id, save_dir.join(_save_dir).to_str().unwrap() ).await {
+                                while let Err(err) = client
+                                    .comic_download_eps(
+                                        &row.id,
+                                        save_dir.join(_save_dir).to_str().unwrap(),
+                                    )
+                                    .await
+                                {
+                                    if let Error::Request(ref e) = err {
+                                        if e.is_body()
+                                            | e.is_decode()
+                                            | e.is_builder()
+                                            | e.is_connect()
+                                        {
+                                            break;
+                                        }
+                                    }
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
                                 }
@@ -253,7 +354,22 @@ mod handle {
                         for comic in res.iter() {
                             println!("{}", Console::format_comic(comic));
                             if options.download {
-                                while let Err(err) = client.comic_download_eps(&comic.id, save_dir.join(_save_dir).to_str().unwrap() ).await {
+                                while let Err(err) = client
+                                    .comic_download_eps(
+                                        &comic.id,
+                                        save_dir.join(_save_dir).to_str().unwrap(),
+                                    )
+                                    .await
+                                {
+                                    if let Error::Request(ref e) = err {
+                                        if e.is_body()
+                                            | e.is_decode()
+                                            | e.is_builder()
+                                            | e.is_connect()
+                                        {
+                                            break;
+                                        }
+                                    }
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
                                 }
@@ -271,11 +387,19 @@ mod handle {
                 }
             }
         }
-        pub async fn download(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, _save_dir: &str) {
+        pub async fn download(
+            client: &mut Client,
+            options: &GlobalOptions,
+            cids: Vec<String>,
+            _save_dir: &str,
+        ) {
             let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
 
             for cid in &cids {
-                match client.comic_download_eps(cid, save_dir.join(_save_dir).to_str().unwrap()).await {
+                match client
+                    .comic_download_eps(cid, save_dir.join(_save_dir).to_str().unwrap())
+                    .await
+                {
                     Ok(()) => {}
                     Err(err) => {
                         println!("{}", Console::format_error(&err))
@@ -287,7 +411,8 @@ mod handle {
     pub mod game {
         use std::{path::PathBuf, str::FromStr};
 
-        use picacg::{console::Console, command::GlobalOptions};
+        use libpicacg::error::Error;
+        use picacg::{command::GlobalOptions, console::Console};
 
         use super::*;
 
@@ -310,7 +435,22 @@ mod handle {
                         for game in res.iter() {
                             println!("{}", Console::format_game(game));
                             if options.download {
-                                while let Err(err) = client.game_download(&game.id, save_dir.join(_save_dir).to_str().unwrap() ).await {
+                                while let Err(err) = client
+                                    .game_download(
+                                        &game.id,
+                                        save_dir.join(_save_dir).to_str().unwrap(),
+                                    )
+                                    .await
+                                {
+                                    if let Error::Request(ref e) = err {
+                                        if e.is_body()
+                                            | e.is_decode()
+                                            | e.is_builder()
+                                            | e.is_connect()
+                                        {
+                                            break;
+                                        }
+                                    }
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
                                 }
@@ -328,14 +468,28 @@ mod handle {
                 }
             }
         }
-        pub async fn info(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, _save_dir: &str) {
+        pub async fn info(
+            client: &mut Client,
+            options: &GlobalOptions,
+            cids: Vec<String>,
+            _save_dir: &str,
+        ) {
             let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             for cid in cids {
                 match client.game_info(&cid).await {
                     Ok(res) => {
                         println!("{}", Console::format_game_info(&res));
                         if options.download {
-                            while let Err(err) = client.game_download(&res.id, save_dir.join(_save_dir).to_str().unwrap() ).await {
+                            while let Err(err) = client
+                                .game_download(&res.id, save_dir.join(_save_dir).to_str().unwrap())
+                                .await
+                            {
+                                if let Error::Request(ref e) = err {
+                                    if e.is_body() | e.is_decode() | e.is_builder() | e.is_connect()
+                                    {
+                                        break;
+                                    }
+                                }
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
                             }
@@ -347,11 +501,19 @@ mod handle {
                 }
             }
         }
-        pub async fn download(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, _save_dir: &str) {
+        pub async fn download(
+            client: &mut Client,
+            options: &GlobalOptions,
+            cids: Vec<String>,
+            _save_dir: &str,
+        ) {
             let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
 
             for cid in cids {
-                match client.game_download(&cid, save_dir.join(_save_dir).to_str().unwrap()).await {
+                match client
+                    .game_download(&cid, save_dir.join(_save_dir).to_str().unwrap())
+                    .await
+                {
                     Ok(_res) => {}
                     Err(err) => {
                         println!("{}", Console::format_error(&err))
@@ -388,7 +550,6 @@ mod handle {
     }
 }
 
-
 #[tokio::main]
 async fn main() {
     let options = GlobalOptions::parse();
@@ -416,7 +577,10 @@ async fn main() {
     std_out.flush().unwrap();
     std_in.read_line(&mut passwd).unwrap();
 
-    if let Err(err) = client.login(&user[..user.len() - 1], &passwd[..passwd.len() - 1]).await {
+    if let Err(err) = client
+        .login(&user[..user.len() - 1], &passwd[..passwd.len() - 1])
+        .await
+    {
         println!("{}", Console::format_error(&err));
         return;
     }
@@ -466,7 +630,8 @@ async fn main() {
                 end,
                 save_dir,
             } => {
-                handle::comic::pic_like_get(&mut client, &options, cid, start, end, &save_dir).await;
+                handle::comic::pic_like_get(&mut client, &options, cid, start, end, &save_dir)
+                    .await;
             }
             ComicOptions::Search {
                 keyword,

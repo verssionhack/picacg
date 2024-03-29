@@ -9,10 +9,7 @@ use std::{
     time::Duration,
 };
 
-use libpicacg::{
-    error::Error,
-    Api, Pagible,
-};
+use libpicacg::{error::Error, Api, Pagible};
 use reqwest::{ClientBuilder, Proxy, RequestBuilder};
 use size_utils::Size;
 use tokio::{
@@ -21,23 +18,12 @@ use tokio::{
     sync::RwLock,
 };
 
-
 pub fn to_full_width_char(c: char) -> char {
     char::from_u32(c as u32 + '？' as u32 - '?' as u32).unwrap()
 }
 
 pub fn path_escape(path: &str) -> String {
-    let chars = [
-        '\\',
-        '/',
-        ':',
-        '*',
-        '?',
-        '"',
-        '<',
-        '>',
-        '|',
-    ];
+    let chars = ['\\', '/', ':', '*', '?', '"', '<', '>', '|'];
     let mut path = path.to_string();
     for c in chars {
         path = path.replace(c, &to_full_width_char(c).to_string());
@@ -199,7 +185,8 @@ impl Client {
             let length = _length.read().await.clone();
             Console::clear_line();
             print!(
-                "{}", Console::format_download_game(completed, length, &file_path_str)
+                "{}",
+                Console::format_download_game(completed, length, &file_path_str)
             );
             stdout().flush().unwrap();
             if completed == length && length.as_byte() > 0 {
@@ -309,7 +296,18 @@ impl Client {
             }
             while *_comics_downloaded.read().await < pages.len() {
                 Console::clear_line();
-                print!("{}", Console::format_download_ep(&downloading_name, pages.current(), pages.pages, *_comics_downloaded.read().await as u64 + 1, pages.len() as u64, *_comics_completed_total.read().await + 1, pages.total));
+                print!(
+                    "{}",
+                    Console::format_download_ep(
+                        &downloading_name,
+                        pages.current(),
+                        pages.pages,
+                        *_comics_downloaded.read().await as u64 + 1,
+                        pages.len() as u64,
+                        *_comics_completed_total.read().await + 1,
+                        pages.total
+                    )
+                );
                 stdout().flush().unwrap();
                 tokio::time::sleep(Duration::from_millis(50)).await;
             }

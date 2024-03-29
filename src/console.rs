@@ -89,11 +89,7 @@ impl Console {
     pub fn format_searchrow(value: &SearchRow) -> String {
         format!(
             "Id[{}] Author[{}] Likes[{}] Views[{}] Title[{}]",
-            value.id, 
-            value.author,
-            value.total_likes,
-            value.total_views,
-            value.title, 
+            value.id, value.author, value.total_likes, value.total_views, value.title,
         )
     }
 
@@ -106,7 +102,10 @@ impl Console {
     }
 
     pub fn format_game_info(value: &GameInfo) -> String {
-        format!("Id[{}] Size[{}MB] Likes[{}] Title[{}]", value.id, value.android_size, value.likes_count, value.title)
+        format!(
+            "Id[{}] Size[{}MB] Likes[{}] Title[{}]",
+            value.id, value.android_size, value.likes_count, value.title
+        )
     }
 
     pub fn format_picture_download_resource(value: &PictureDownloadResounce) -> String {
@@ -118,11 +117,13 @@ impl Console {
     }
 
     pub fn format_download_game(completed: Size, length: Size, file_path: &str) -> String {
-        format!("Downloading {:.02}/{:.02}MB {:.02}% {}",
-        completed.as_mb_f64(),
-        length.as_mb_f64(),
-        completed.as_kb_f64() / length.as_kb_f64() * 100.0,
-        file_path)
+        format!(
+            "Downloading {:.02}/{:.02}MB {:.02}% {}",
+            completed.as_mb_f64(),
+            length.as_mb_f64(),
+            completed.as_kb_f64() / length.as_kb_f64() * 100.0,
+            file_path
+        )
     }
 
     pub fn format_page(value: &Page) -> String {
