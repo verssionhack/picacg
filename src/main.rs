@@ -16,6 +16,8 @@ mod console;
 mod handle {
     use crate::client::Client;
     pub mod comic {
+        use std::{path::PathBuf, str::FromStr};
+
         use libpicacg::{Sort};
         use picacg::{console::Console, command::GlobalOptions};
 
@@ -39,12 +41,13 @@ mod handle {
             }
         }
         pub async fn metadata(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, _save_dir: Option<String>) {
+            let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             for cid in cids {
                 match client.comic_metadata(&cid).await {
                     Ok(res) => {
                         println!("{}", Console::format_comic_metadata(&res));
                         if options.download {
-                            client.comic_download_eps(&res.metadata.id, &options.save_dir).await.map_err(|err| {
+                            client.comic_download_eps(&res.metadata.id, save_dir.join(_save_dir.unwrap_or(".".to_owned())) ).await.map_err(|err| {
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
                             });
@@ -57,13 +60,14 @@ mod handle {
             }
         }
         pub async fn recommended(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, _save_dir: Option<String>) {
+            let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             for cid in cids {
                 match client.comic_recommended(&cid).await {
                     Ok(res) => {
                         for comic in res.iter() {
                             println!("{}", Console::format_comic(&comic));
                             if options.download {
-                                client.comic_download_eps(&comic.id, &options.save_dir).await.map_err(|err| {
+                                client.comic_download_eps(&comic.id, save_dir.join(_save_dir.unwrap_or(".".to_owned()))).await.map_err(|err| {
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
                                 });
@@ -84,6 +88,7 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
+            let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             let mut end = end.unwrap_or(start);
             let mut page = start;
             loop {
@@ -96,7 +101,7 @@ mod handle {
                             println!("{}", Console::format_ep(ep));
                         }
                         if options.download {
-                            client.comic_download_eps(&cid, &options.save_dir).await.map_err(|err| {
+                            client.comic_download_eps(&cid, save_dir.join(_save_dir.unwrap_or(".".to_owned())) ).await.map_err(|err| {
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
                             });
@@ -123,6 +128,7 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
+            let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             let mut end_index = end.unwrap_or(start_index);
             for page_index in start_index..=end_index {
                 let mut end = end.unwrap_or(start);
@@ -137,7 +143,7 @@ mod handle {
                                 println!("{}", Console::format_page(page));
                             }
                             if options.download {
-                                client.comic_download_eps(&cid, &options.save_dir).await.map_err(|err| {
+                                client.comic_download_eps(&cid, save_dir.join(_save_dir.unwrap_or(".".to_owned())) ).await.map_err(|err| {
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
                                 });
@@ -163,6 +169,7 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
+            let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             let mut end = end.unwrap_or(start);
             let mut page = start;
             loop {
@@ -172,7 +179,7 @@ mod handle {
                             println!("{}", Console::format_recommend_pic_like(comic));
                         }
                         if options.download {
-                            client.comic_download_eps(&cid, &options.save_dir).await.map_err(|err| {
+                            client.comic_download_eps(&cid, save_dir.join(_save_dir.unwrap_or(".".to_owned())) ).await.map_err(|err| {
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
                             });
@@ -197,6 +204,7 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
+            let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             let mut end = end.unwrap_or(start);
             let mut page = start;
             loop {
@@ -208,7 +216,7 @@ mod handle {
                         for row in res.iter() {
                             println!("{}", Console::format_searchrow(row));
                             if options.download {
-                                client.comic_download_eps(&row.id, &options.save_dir).await.map_err(|err| {
+                                client.comic_download_eps(&row.id, save_dir.join(_save_dir.unwrap_or(".".to_owned())) ).await.map_err(|err| {
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
                                 });
@@ -233,6 +241,7 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
+            let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             let mut end = end.unwrap_or(start);
             let mut page = start;
             loop {
@@ -244,7 +253,7 @@ mod handle {
                         for comic in res.iter() {
                             println!("{}", Console::format_comic(comic));
                             if options.download {
-                                client.comic_download_eps(&comic.id, &options.save_dir).await.map_err(|err| {
+                                client.comic_download_eps(&comic.id, save_dir.join(_save_dir.unwrap_or(".".to_owned())) ).await.map_err(|err| {
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
                                 });
@@ -262,11 +271,11 @@ mod handle {
                 }
             }
         }
-        pub async fn download(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, save_dir: Option<String>) {
-            let save_dir = options.save_dir.clone() + "/" + &save_dir.unwrap_or(".".to_owned());
+        pub async fn download(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, _save_dir: Option<String>) {
+            let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
 
             for cid in &cids {
-                match client.comic_download_eps(cid, &save_dir).await {
+                match client.comic_download_eps(cid, save_dir.join(_save_dir.unwrap_or(".".to_owned()))).await {
                     Ok(()) => {}
                     Err(err) => {
                         println!("{}", Console::format_error(&err))
@@ -276,6 +285,8 @@ mod handle {
         }
     }
     pub mod game {
+        use std::{path::PathBuf, str::FromStr};
+
         use picacg::{console::Console, command::GlobalOptions};
 
         use super::*;
@@ -287,6 +298,7 @@ mod handle {
             end: Option<u64>,
             _save_dir: Option<String>,
         ) {
+            let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             let mut end = end.unwrap_or(start);
             let mut page = start;
             loop {
@@ -298,7 +310,7 @@ mod handle {
                         for game in res.iter() {
                             println!("{}", Console::format_game(game));
                             if options.download {
-                                client.game_download(&game.id, &options.save_dir).await.map_err(|err| {
+                                client.game_download(&game.id, save_dir.join(_save_dir.unwrap_or(".".to_owned())) ).await.map_err(|err| {
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
                                 });
@@ -317,12 +329,13 @@ mod handle {
             }
         }
         pub async fn info(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, _save_dir: Option<String>) {
+            let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
             for cid in cids {
                 match client.game_info(&cid).await {
                     Ok(res) => {
                         println!("{}", Console::format_game_info(&res));
                         if options.download {
-                            client.game_download(&res.id, &options.save_dir).await.map_err(|err| {
+                            client.game_download(&res.id, save_dir.join(_save_dir.unwrap_or(".".to_owned())) ).await.map_err(|err| {
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
                             });
@@ -334,11 +347,11 @@ mod handle {
                 }
             }
         }
-        pub async fn download(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, save_dir: Option<String>) {
-            let save_dir = options.save_dir.clone() + "/" + &save_dir.unwrap_or(".".to_owned());
+        pub async fn download(client: &mut Client, options: &GlobalOptions, cids: Vec<String>, _save_dir: Option<String>) {
+            let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
 
             for cid in cids {
-                match client.game_download(&cid, &save_dir).await {
+                match client.game_download(&cid, save_dir.join(_save_dir.unwrap_or(".".to_owned()))).await {
                     Ok(_res) => {}
                     Err(err) => {
                         println!("{}", Console::format_error(&err))
