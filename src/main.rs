@@ -540,7 +540,7 @@ fn main() {
             client.set_proxy(Some(Proxy::http(v).unwrap())).unwrap();
         }
 
-        //client.set_timeout(Some(Duration::from_secs(5))).unwrap();
+        client.set_timeout(Some(Duration::from_secs(5))).unwrap();
 
         let mut user = String::new();
         let mut passwd = String::new();
