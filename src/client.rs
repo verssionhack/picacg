@@ -309,7 +309,7 @@ impl Client {
             }
             while *_comics_downloaded.read().await < pages.len() {
                 Console::clear_line();
-                print!("{}", Console::format_download_ep(&downloading_name, pages.current(), pages.pages, *_comics_downloaded.read().await as u64, pages.len() as u64, *_comics_completed_total.read().await, pages.total));
+                print!("{}", Console::format_download_ep(&downloading_name, pages.current(), pages.pages, *_comics_downloaded.read().await as u64 + 1, pages.len() as u64, *_comics_completed_total.read().await + 1, pages.total));
                 stdout().flush().unwrap();
                 tokio::time::sleep(Duration::from_millis(50)).await;
             }
