@@ -45,6 +45,7 @@ mod handle {
                     }
                 }
                 Err(err) => {
+                    Console::clear_line();
                     println!("{}", Console::format_error(&err))
                 }
             }
@@ -79,6 +80,7 @@ mod handle {
                         }
                     }
                     Err(err) => {
+                        Console::clear_line();
                         println!("{}", Console::format_error(&err))
                     }
                 }
@@ -116,6 +118,7 @@ mod handle {
                         }
                     }
                     Err(err) => {
+                        Console::clear_line();
                         println!("{}", Console::format_error(&err))
                     }
                 }
@@ -160,6 +163,7 @@ mod handle {
                         }
                     }
                     Err(err) => {
+                        Console::clear_line();
                         println!("{}", Console::format_error(&err))
                     }
                 }
@@ -213,6 +217,7 @@ mod handle {
                             }
                         }
                         Err(err) => {
+                            Console::clear_line();
                             println!("{}", Console::format_error(&err))
                         }
                     }
@@ -260,6 +265,7 @@ mod handle {
                         }
                     }
                     Err(err) => {
+                        Console::clear_line();
                         println!("{}", Console::format_error(&err))
                     }
                 }
@@ -309,6 +315,7 @@ mod handle {
                         }
                     }
                     Err(err) => {
+                        Console::clear_line();
                         println!("{}", Console::format_error(&err))
                     }
                 }
@@ -357,6 +364,7 @@ mod handle {
                         }
                     }
                     Err(err) => {
+                        Console::clear_line();
                         println!("{}", Console::format_error(&err))
                     }
                 }
@@ -434,6 +442,7 @@ mod handle {
                         }
                     }
                     Err(err) => {
+                        Console::clear_line();
                         println!("{}", Console::format_error(&err))
                     }
                 }
@@ -473,6 +482,7 @@ mod handle {
                         }
                     }
                     Err(err) => {
+                        Console::clear_line();
                         println!("{}", Console::format_error(&err))
                     }
                 }
@@ -510,6 +520,7 @@ mod handle {
                     println!("{}", Console::format_punch_in(&res));
                 }
                 Err(err) => {
+                    Console::clear_line();
                     println!("{}", Console::format_error(&err))
                 }
             }
@@ -520,6 +531,7 @@ mod handle {
                     println!("{}", Console::format_profile(&res));
                 }
                 Err(err) => {
+                    Console::clear_line();
                     println!("{}", Console::format_error(&err))
                 }
             }
