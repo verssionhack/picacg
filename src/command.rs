@@ -35,14 +35,14 @@ pub enum ComicOptions {
     Metadata {
         #[clap(short='c', long="cids", action=ArgAction::Append)]
         cids: Vec<String>,
-        #[clap(short = 'o', long = "save-dir")]
-        save_dir: Option<String>,
+        #[clap(short = 'o', long = "save-dir", default_value = ".")]
+        save_dir: String,
     },
     Recommended {
         #[clap(short='c', long="cids", action=ArgAction::Append)]
         cids: Vec<String>,
-        #[clap(short = 'o', long = "save-dir")]
-        save_dir: Option<String>,
+        #[clap(short = 'o', long = "save-dir", default_value = ".")]
+        save_dir: String,
     },
     Eps {
         #[clap(short = 'c', long = "cid")]
@@ -51,8 +51,8 @@ pub enum ComicOptions {
         start: u64,
         #[clap(short = 'u', long = "until")]
         end: Option<u64>,
-        #[clap(short = 'o', long = "save-dir")]
-        save_dir: Option<String>,
+        #[clap(short = 'o', long = "save-dir", default_value = ".")]
+        save_dir: String,
     },
     Pages {
         #[clap(short = 'c', long = "cid")]
@@ -65,8 +65,8 @@ pub enum ComicOptions {
         start: u64,
         #[clap(short = 'u', long = "until")]
         end: Option<u64>,
-        #[clap(short = 'o', long = "save-dir")]
-        save_dir: Option<String>,
+        #[clap(short = 'o', long = "save-dir", default_value = ".")]
+        save_dir: String,
     },
     PicLikeGet {
         #[clap(short = 'c', long = "cid")]
@@ -75,8 +75,8 @@ pub enum ComicOptions {
         start: u64,
         #[clap(short = 'u', long = "until")]
         end: Option<u64>,
-        #[clap(short = 'o', long = "save-dir")]
-        save_dir: Option<String>,
+        #[clap(short = 'o', long = "save-dir", default_value = ".")]
+        save_dir: String,
     },
     Search {
         #[clap(short = 'k', long = "keyword")]
@@ -85,22 +85,22 @@ pub enum ComicOptions {
         start: u64,
         #[clap(short = 'u', long = "until")]
         end: Option<u64>,
-        #[clap(short = 'o', long = "save-dir")]
-        save_dir: Option<String>,
+        #[clap(short = 'o', long = "save-dir", default_value = ".")]
+        save_dir: String,
     },
     Favourites {
         #[clap(short = 's', long = "start", default_value = "1")]
         start: u64,
         #[clap(short = 'u', long = "until")]
         end: Option<u64>,
-        #[clap(short = 'o', long = "save-dir")]
-        save_dir: Option<String>,
+        #[clap(short = 'o', long = "save-dir", default_value = ".")]
+        save_dir: String,
     },
     Download {
         #[clap(short = 'c', long = "cid")]
         cids: Vec<String>,
-        #[clap(short = 'o', long = "save-dir")]
-        save_dir: Option<String>,
+        #[clap(short = 'o', long = "save-dir", default_value = ".")]
+        save_dir: String,
     },
 }
 
@@ -111,20 +111,20 @@ pub enum GameOptions {
         start: u64,
         #[clap(short = 'u', long = "until")]
         end: Option<u64>,
-        #[clap(short = 'o', long = "save-dir")]
-        save_dir: Option<String>,
+        #[clap(short = 'o', long = "save-dir", default_value = ".")]
+        save_dir: String,
     },
     Info {
         #[clap(short='c', long="cids", action=ArgAction::Append)]
         cids: Vec<String>,
-        #[clap(short = 'o', long = "save-dir")]
-        save_dir: Option<String>,
+        #[clap(short = 'o', long = "save-dir", default_value = ".")]
+        save_dir: String,
     },
     Download {
         #[clap(short='c', long="cids", action=ArgAction::Append)]
         cids: Vec<String>,
-        #[clap(short = 'o', long = "save-dir")]
-        save_dir: Option<String>,
+        #[clap(short = 'o', long = "save-dir", default_value = ".")]
+        save_dir: String,
     },
 }
 
