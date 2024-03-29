@@ -120,79 +120,73 @@ impl Client {
             .get(download_url)
             .header("referer", &game_info.android_links[0]);
 
-        let request_header = self
+        let request_head = self
             .client
             .head(download_url)
             .header("referer", &game_info.android_links[0]);
 
-        let _length = Arc::new(RwLock::new(Size::default()));
-        let _completed_length = Arc::new(RwLock::new(Size::default()));
-
-        let length = _length.clone();
-        let completed_length = _completed_length.clone();
-        if file_path.exists() {
-            *completed_length.write().await = (file_path.metadata().unwrap().len() as u64).into();
-        }
-        tokio::spawn(async move {
-            let mut file_handle = fs::OpenOptions::new()
-                .create(true)
-                .append(true)
-                .write(true)
-                .open(&file_path)
-                .await
-                .unwrap();
-            'restart: loop {
-                let mut download_handle = loop {
-                    if let Ok(handle) = request
-                        .try_clone()
-                        .unwrap()
-                        //.timeout(Duration::from_secs(5))
-                        .header(
-                            "range",
-                            format!("bytes={}-", completed_length.read().await.as_byte()),
-                        )
-                        .send()
-                        .await
-                    {
-                        break handle;
-                    }
-                };
-                *length.write().await = (download_handle.content_length().unwrap()
-                    + completed_length.read().await.as_byte())
-                .into();
-                if *completed_length.read().await == *length.read().await {
-                    return;
-                }
-                loop {
-                    if let Ok(chunk) = download_handle.chunk().await {
-                        if let Some(chunk) = chunk {
-                            *completed_length.write().await += Size::from_byte(chunk.len() as u64);
-                            file_handle.write(&chunk).await.unwrap();
-                        }
-                    } else {
-                        continue 'restart;
-                    }
-                    if *completed_length.read().await == *length.read().await {
-                        break;
-                    }
-                    tokio::time::sleep(Duration::from_nanos(100)).await;
-                }
-                break;
+        let mut completed_length = Size::default();
+        let length = Size::from_byte(loop {
+            if let Ok(res) = request_head.try_clone().unwrap().send().await {
+                break res.content_length().unwrap() as u64;
             }
         });
-        loop {
-            let completed = _completed_length.read().await.clone();
-            let length = _length.read().await.clone();
-            Console::clear_line();
-            print!(
-                "{}",
-                Console::format_download_game(completed, length, &file_path_str)
-            );
-            stdout().flush().unwrap();
-            if completed == length && length.as_byte() > 0 {
+        if file_path.exists() {
+            completed_length.set_byte(file_path.metadata().unwrap().len() as u64);
+        }
+        let mut file_handle = fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .write(true)
+            .open(&file_path)
+            .await
+            .unwrap();
+        'restart: loop {
+            let mut download_handle = loop {
+                match request
+                    .try_clone()
+                    .unwrap()
+                    .header(
+                        "range",
+                        format!("bytes={}-", completed_length.as_byte()),
+                    )
+                    .send()
+                    .await
+                {
+                    Ok(handle) => {
+                        break handle;
+                    }
+                    Err(err) => {
+                        println!("{:?}", err);
+                        if err.is_timeout() || err.is_connect() || err.is_request() {
+                            continue 'restart;
+                        } else {
+                            break 'restart;
+                        }
+                    }
+                }
+            };
+            if completed_length == length {
                 break;
             }
-            tokio::time::sleep(Duration::from_millis(200)).await;
+            loop {
+                if let Ok(chunk) = download_handle.chunk().await {
+                    if let Some(chunk) = chunk {
+                        completed_length += Size::from_byte(chunk.len() as u64);
+                        file_handle.write(&chunk).await.unwrap();
+                    }
+                }
+                Console::clear_line();
+                print!(
+                    "{}",
+                    Console::format_download_game(completed_length, length, &file_path_str)
+                );
+                stdout().flush().unwrap();
+                if completed_length == length {
+                    break;
+                }
+            }
+            break;
         }
         Console::clear_line();
         Ok(())
@@ -252,27 +246,55 @@ impl Client {
                 let comics_total_length = _comics_total_length.clone();
                 let comics_completed_total = _comics_completed_total.clone();
                 let file_path = sub_savepath.join(path_escape(comic.media.filename()));
-                let request = self.get(comic.media.download_url().as_str());
+                let download_url = comic.media.download_url();
+                let request = self.get(download_url.as_str());
+                let request_head = self.client.head(download_url.as_str());
                 tokio::spawn(async move {
-                    let mut download_handle = loop {
-                        if let Ok(handle) = request.try_clone().unwrap().send().await {
-                            break handle;
+                    let length = loop {
+                        if let Ok(res) = request_head.try_clone().unwrap().send().await {
+                            break res.content_length().unwrap();
                         }
                     };
-                    let length = download_handle.content_length().unwrap();
                     *comics_total_length.write().await += length;
-                    if file_path.exists() && file_path.metadata().unwrap().len() == length {
-                        *comics_completed_length.write().await += length;
+                    let mut completed_length = 0;
+                    if file_path.exists() {
+                        completed_length = file_path.metadata().unwrap().len();
+                        *comics_completed_length.write().await += completed_length;
+                    }
+                    if completed_length == length {
                         *comics_downloaded.write().await += 1;
                         *comics_completed_total.write().await += 1;
                         return;
                     }
-                    let mut completed_length = 0;
                     'restart: loop {
+                        let mut download_handle = loop {
+                            match request
+                                .try_clone()
+                                .unwrap()
+                                .header(
+                                    "range",
+                                    format!("bytes={}-", completed_length),
+                                )
+                                .send()
+                                .await
+                            {
+                                Ok(handle) => {
+                                    break handle;
+                                }
+                                Err(err) => {
+                                    println!("{:?}", err);
+                                    if err.is_timeout() || err.is_connect() || err.is_request() {
+                                        continue 'restart;
+                                    } else {
+                                        break 'restart;
+                                    }
+                                }
+                            }
+                        };
                         let mut file_handle = fs::OpenOptions::new()
                             .create(true)
                             .write(true)
-                            .truncate(true)
+                            .append(true)
                             .open(&file_path)
                             .await
                             .unwrap();
@@ -286,7 +308,6 @@ impl Client {
                             } else {
                                 continue 'restart;
                             }
-                            tokio::time::sleep(Duration::from_nanos(100)).await;
                         }
                         break;
                     }

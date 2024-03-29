@@ -34,8 +34,7 @@ mod handle {
                                 .await
                             {
                                 if let Error::Request(ref e) = err {
-                                    if e.is_body() | e.is_decode() | e.is_builder()
-                                    {
+                                    if !(e.is_timeout() || e.is_connect() || e.is_request()) {
                                         break;
                                     }
                                 }
@@ -70,8 +69,7 @@ mod handle {
                                 .await
                             {
                                 if let Error::Request(ref e) = err {
-                                    if e.is_body() | e.is_decode() | e.is_builder()
-                                    {
+                                    if !(e.is_timeout() || e.is_connect() || e.is_request()) {
                                         break;
                                     }
                                 }
@@ -107,11 +105,7 @@ mod handle {
                                     .await
                                 {
                                     if let Error::Request(ref e) = err {
-                                        if e.is_body()
-                                            | e.is_decode()
-                                            | e.is_builder()
-                                           
-                                        {
+                                        if !(e.is_timeout() || e.is_connect() || e.is_request()) {
                                             break;
                                         }
                                     }
@@ -156,8 +150,7 @@ mod handle {
                                 .await
                             {
                                 if let Error::Request(ref e) = err {
-                                    if e.is_body() | e.is_decode() | e.is_builder()
-                                    {
+                                    if !(e.is_timeout() || e.is_connect() || e.is_request()) {
                                         break;
                                     }
                                 }
@@ -210,11 +203,7 @@ mod handle {
                                     .await
                                 {
                                     if let Error::Request(ref e) = err {
-                                        if e.is_body()
-                                            | e.is_decode()
-                                            | e.is_builder()
-                                           
-                                        {
+                                        if !(e.is_timeout() || e.is_connect() || e.is_request()) {
                                             break;
                                         }
                                     }
@@ -261,8 +250,7 @@ mod handle {
                                 .await
                             {
                                 if let Error::Request(ref e) = err {
-                                    if e.is_body() | e.is_decode() | e.is_builder()
-                                    {
+                                    if !(e.is_timeout() || e.is_connect() || e.is_request()) {
                                         break;
                                     }
                                 }
@@ -310,11 +298,7 @@ mod handle {
                                     .await
                                 {
                                     if let Error::Request(ref e) = err {
-                                        if e.is_body()
-                                            | e.is_decode()
-                                            | e.is_builder()
-                                           
-                                        {
+                                        if !(e.is_timeout() || e.is_connect() || e.is_request()) {
                                             break;
                                         }
                                     }
@@ -362,11 +346,7 @@ mod handle {
                                     .await
                                 {
                                     if let Error::Request(ref e) = err {
-                                        if e.is_body()
-                                            | e.is_decode()
-                                            | e.is_builder()
-                                           
-                                        {
+                                        if !(e.is_timeout() || e.is_connect() || e.is_request()) {
                                             break;
                                         }
                                     }
@@ -443,11 +423,7 @@ mod handle {
                                     .await
                                 {
                                     if let Error::Request(ref e) = err {
-                                        if e.is_body()
-                                            | e.is_decode()
-                                            | e.is_builder()
-                                           
-                                        {
+                                        if !(e.is_timeout() || e.is_connect() || e.is_request()) {
                                             break;
                                         }
                                     }
@@ -485,8 +461,9 @@ mod handle {
                                 .await
                             {
                                 if let Error::Request(ref e) = err {
-                                    if e.is_body() | e.is_decode() | e.is_builder()
-                                    {
+                                    if e.is_timeout() || e.is_connect() || e.is_request() {
+                                        continue;
+                                    } else {
                                         break;
                                     }
                                 }
