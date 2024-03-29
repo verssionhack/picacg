@@ -141,8 +141,9 @@ impl Client {
             .open(&file_path)
             .await
             .unwrap();
+        let mut download_handle;
         'restart: loop {
-            let mut download_handle = loop {
+            download_handle = loop {
                 match request
                     .try_clone()
                     .unwrap()
@@ -170,11 +171,22 @@ impl Client {
             if completed_length == length {
                 break;
             }
-            loop {
-                if let Ok(chunk) = download_handle.chunk().await {
-                    if let Some(chunk) = chunk {
-                        completed_length += Size::from_byte(chunk.len() as u64);
-                        file_handle.write(&chunk).await.unwrap();
+            while completed_length < length {
+                match download_handle.chunk().await {
+                    Ok(chunk) => {
+                        if let Some(chunk) = chunk {
+                            completed_length += Size::from_byte(chunk.len() as u64);
+                            file_handle.write(&chunk).await.unwrap();
+                        }
+                    }
+                    Err(err) => {
+                        Console::clear_line();
+                        println!("{:?}", err);
+                        if err.is_timeout() || err.is_connect() || err.is_request() {
+                            continue 'restart;
+                        } else {
+                            break 'restart;
+                        }
                     }
                 }
                 Console::clear_line();
@@ -183,11 +195,7 @@ impl Client {
                     Console::format_download_game(completed_length, length, &file_path_str)
                 );
                 stdout().flush().unwrap();
-                if completed_length == length {
-                    break;
-                }
             }
-            break;
         }
         Console::clear_line();
         Ok(())
@@ -267,8 +275,16 @@ impl Client {
                         *comics_completed_total.write().await += 1;
                         return;
                     }
+                    let mut download_handle;
+                    let mut file_handle = fs::OpenOptions::new()
+                            .create(true)
+                            .write(true)
+                            .append(true)
+                            .open(&file_path)
+                            .await
+                            .unwrap();
                     'restart: loop {
-                        let mut download_handle = loop {
+                        download_handle = loop {
                             match request
                                 .try_clone()
                                 .unwrap()
@@ -293,22 +309,24 @@ impl Client {
                                 }
                             }
                         };
-                        let mut file_handle = fs::OpenOptions::new()
-                            .create(true)
-                            .write(true)
-                            .append(true)
-                            .open(&file_path)
-                            .await
-                            .unwrap();
                         while completed_length < length {
-                            if let Ok(chunk) = download_handle.chunk().await {
-                                if let Some(chunk) = chunk {
-                                    completed_length += chunk.len() as u64;
-                                    *comics_completed_length.write().await += chunk.len() as u64;
-                                    file_handle.write(&chunk).await.unwrap();
+                            match download_handle.chunk().await {
+                                Ok(chunk) => {
+                                    if let Some(chunk) = chunk {
+                                        completed_length += chunk.len() as u64;
+                                        *comics_completed_length.write().await += chunk.len() as u64;
+                                        file_handle.write(&chunk).await.unwrap();
+                                    }
                                 }
-                            } else {
-                                continue 'restart;
+                                Err(err) => {
+                                    Console::clear_line();
+                                    println!("{:?}", err);
+                                    if err.is_timeout() || err.is_connect() || err.is_request() {
+                                        continue 'restart;
+                                    } else {
+                                        break 'restart;
+                                    }
+                                }
                             }
                         }
                         break;
