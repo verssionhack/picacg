@@ -10,7 +10,7 @@ use std::{
 };
 
 use libpicacg::{error::Error, Api, Pagible};
-use reqwest::{ClientBuilder, Proxy, RequestBuilder};
+use reqwest::{ClientBuilder, Proxy, RequestBuilder, redirect::Policy, header::HeaderName};
 use size_utils::Size;
 use tokio::{
     fs,
@@ -128,7 +128,7 @@ impl Client {
         let mut completed_length = Size::default();
         let length = Size::from_byte(loop {
             if let Ok(res) = request_head.try_clone().unwrap().send().await {
-                break res.content_length().unwrap() as u64;
+                break res.headers().get(HeaderName::from_static("content-length")).unwrap().to_str().unwrap().parse::<u64>().unwrap();
             }
         });
         if file_path.exists() {
@@ -253,7 +253,7 @@ impl Client {
                 tokio::spawn(async move {
                     let length = loop {
                         if let Ok(res) = request_head.try_clone().unwrap().send().await {
-                            break res.content_length().unwrap();
+                            break res.headers().get(HeaderName::from_static("content-length")).unwrap().to_str().unwrap().parse::<u64>().unwrap();
                         }
                     };
                     *comics_total_length.write().await += length;
