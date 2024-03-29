@@ -28,10 +28,10 @@ mod handle {
                     for comic in res.iter() {
                         println!("{}", Console::format_comic(&comic));
                         if options.download {
-                            client.comic_download_eps(&comic.id, &options.save_dir).await.map_err(|err| {
+                            while let Err(err) = client.comic_download_eps(&comic.id, &options.save_dir).await {
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
-                            });
+                            }
                         }
                     }
                 }
@@ -47,10 +47,10 @@ mod handle {
                     Ok(res) => {
                         println!("{}", Console::format_comic_metadata(&res));
                         if options.download {
-                            client.comic_download_eps(&res.metadata.id, save_dir.join(_save_dir).to_str().unwrap() ).await.map_err(|err| {
+                            while let Err(err) = client.comic_download_eps(&res.metadata.id, save_dir.join(_save_dir).to_str().unwrap() ).await {
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
-                            });
+                            }
                         }
                     }
                     Err(err) => {
@@ -67,10 +67,10 @@ mod handle {
                         for comic in res.iter() {
                             println!("{}", Console::format_comic(&comic));
                             if options.download {
-                                client.comic_download_eps(&comic.id, save_dir.join(_save_dir).to_str().unwrap()).await.map_err(|err| {
+                                while let Err(err) = client.comic_download_eps(&comic.id, save_dir.join(_save_dir).to_str().unwrap()).await {
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
-                                });
+                                }
                             }
                         }
                     }
@@ -101,10 +101,10 @@ mod handle {
                             println!("{}", Console::format_ep(ep));
                         }
                         if options.download {
-                            client.comic_download_eps(&cid, save_dir.join(_save_dir).to_str().unwrap() ).await.map_err(|err| {
+                            while let Err(err) = client.comic_download_eps(&cid, save_dir.join(_save_dir).to_str().unwrap() ).await {
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
-                            });
+                            }
                         }
                     }
                     Err(err) => {
@@ -143,10 +143,10 @@ mod handle {
                                 println!("{}", Console::format_page(page));
                             }
                             if options.download {
-                                client.comic_download_eps(&cid, save_dir.join(_save_dir).to_str().unwrap() ).await.map_err(|err| {
+                                while let Err(err) = client.comic_download_eps(&cid, save_dir.join(_save_dir).to_str().unwrap() ).await {
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
-                                });
+                                }
                             }
                         }
                         Err(err) => {
@@ -179,10 +179,10 @@ mod handle {
                             println!("{}", Console::format_recommend_pic_like(comic));
                         }
                         if options.download {
-                            client.comic_download_eps(&cid, save_dir.join(_save_dir).to_str().unwrap() ).await.map_err(|err| {
+                            while let Err(err) = client.comic_download_eps(&cid, save_dir.join(_save_dir).to_str().unwrap() ).await {
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
-                            });
+                            }
                         }
                     }
                     Err(err) => {
@@ -216,10 +216,10 @@ mod handle {
                         for row in res.iter() {
                             println!("{}", Console::format_searchrow(row));
                             if options.download {
-                                client.comic_download_eps(&row.id, save_dir.join(_save_dir).to_str().unwrap() ).await.map_err(|err| {
+                                while let Err(err) = client.comic_download_eps(&row.id, save_dir.join(_save_dir).to_str().unwrap() ).await {
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
-                                });
+                                }
                             }
                         }
                     }
@@ -253,10 +253,10 @@ mod handle {
                         for comic in res.iter() {
                             println!("{}", Console::format_comic(comic));
                             if options.download {
-                                client.comic_download_eps(&comic.id, save_dir.join(_save_dir).to_str().unwrap() ).await.map_err(|err| {
+                                while let Err(err) = client.comic_download_eps(&comic.id, save_dir.join(_save_dir).to_str().unwrap() ).await {
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
-                                });
+                                }
                             }
                         }
                     }
@@ -310,10 +310,10 @@ mod handle {
                         for game in res.iter() {
                             println!("{}", Console::format_game(game));
                             if options.download {
-                                client.game_download(&game.id, save_dir.join(_save_dir).to_str().unwrap() ).await.map_err(|err| {
+                                while let Err(err) = client.game_download(&game.id, save_dir.join(_save_dir).to_str().unwrap() ).await {
                                     Console::clear_line();
                                     println!("{}", Console::format_error(&err));
-                                });
+                                }
                             }
                         }
                     }
@@ -335,10 +335,10 @@ mod handle {
                     Ok(res) => {
                         println!("{}", Console::format_game_info(&res));
                         if options.download {
-                            client.game_download(&res.id, save_dir.join(_save_dir).to_str().unwrap() ).await.map_err(|err| {
+                            while let Err(err) = client.game_download(&res.id, save_dir.join(_save_dir).to_str().unwrap() ).await {
                                 Console::clear_line();
                                 println!("{}", Console::format_error(&err));
-                            });
+                            }
                         }
                     }
                     Err(err) => {
