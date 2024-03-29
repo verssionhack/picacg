@@ -157,6 +157,7 @@ impl Client {
                         break handle;
                     }
                     Err(err) => {
+                        Console::clear_line();
                         println!("{:?}", err);
                         if err.is_timeout() || err.is_connect() || err.is_request() {
                             continue 'restart;
@@ -282,6 +283,7 @@ impl Client {
                                     break handle;
                                 }
                                 Err(err) => {
+                                    Console::clear_line();
                                     println!("{:?}", err);
                                     if err.is_timeout() || err.is_connect() || err.is_request() {
                                         continue 'restart;
