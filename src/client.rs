@@ -189,6 +189,7 @@ impl Client {
                     if *completed_length.read().await == *length.read().await {
                         break;
                     }
+                    tokio::time::sleep(Duration::from_nanos(100)).await;
                 }
                 break;
             }
@@ -298,6 +299,7 @@ impl Client {
                             } else {
                                 continue 'restart;
                             }
+                            tokio::time::sleep(Duration::from_nanos(100)).await;
                         }
                         break;
                     }
