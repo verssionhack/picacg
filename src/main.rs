@@ -34,7 +34,7 @@ mod handle {
                                 .await
                             {
                                 if let Error::Request(ref e) = err {
-                                    if e.is_body() | e.is_decode() | e.is_builder() | e.is_connect()
+                                    if e.is_body() | e.is_decode() | e.is_builder()
                                     {
                                         break;
                                     }
@@ -70,7 +70,7 @@ mod handle {
                                 .await
                             {
                                 if let Error::Request(ref e) = err {
-                                    if e.is_body() | e.is_decode() | e.is_builder() | e.is_connect()
+                                    if e.is_body() | e.is_decode() | e.is_builder()
                                     {
                                         break;
                                     }
@@ -110,7 +110,7 @@ mod handle {
                                         if e.is_body()
                                             | e.is_decode()
                                             | e.is_builder()
-                                            | e.is_connect()
+                                           
                                         {
                                             break;
                                         }
@@ -156,7 +156,7 @@ mod handle {
                                 .await
                             {
                                 if let Error::Request(ref e) = err {
-                                    if e.is_body() | e.is_decode() | e.is_builder() | e.is_connect()
+                                    if e.is_body() | e.is_decode() | e.is_builder()
                                     {
                                         break;
                                     }
@@ -213,7 +213,7 @@ mod handle {
                                         if e.is_body()
                                             | e.is_decode()
                                             | e.is_builder()
-                                            | e.is_connect()
+                                           
                                         {
                                             break;
                                         }
@@ -261,7 +261,7 @@ mod handle {
                                 .await
                             {
                                 if let Error::Request(ref e) = err {
-                                    if e.is_body() | e.is_decode() | e.is_builder() | e.is_connect()
+                                    if e.is_body() | e.is_decode() | e.is_builder()
                                     {
                                         break;
                                     }
@@ -313,7 +313,7 @@ mod handle {
                                         if e.is_body()
                                             | e.is_decode()
                                             | e.is_builder()
-                                            | e.is_connect()
+                                           
                                         {
                                             break;
                                         }
@@ -365,7 +365,7 @@ mod handle {
                                         if e.is_body()
                                             | e.is_decode()
                                             | e.is_builder()
-                                            | e.is_connect()
+                                           
                                         {
                                             break;
                                         }
@@ -446,7 +446,7 @@ mod handle {
                                         if e.is_body()
                                             | e.is_decode()
                                             | e.is_builder()
-                                            | e.is_connect()
+                                           
                                         {
                                             break;
                                         }
@@ -485,7 +485,7 @@ mod handle {
                                 .await
                             {
                                 if let Error::Request(ref e) = err {
-                                    if e.is_body() | e.is_decode() | e.is_builder() | e.is_connect()
+                                    if e.is_body() | e.is_decode() | e.is_builder()
                                     {
                                         break;
                                     }
@@ -550,131 +550,133 @@ mod handle {
     }
 }
 
-#[tokio::main]
-async fn main() {
-    let options = GlobalOptions::parse();
-    let mut client = Client::new();
-    if let Some(ref v) = options.all_proxy {
-        client.set_proxy(Some(Proxy::all(v).unwrap())).unwrap();
-    } else if let Some(ref v) = options.https_proxy {
-        client.set_proxy(Some(Proxy::https(v).unwrap())).unwrap();
-    } else if let Some(ref v) = options.http_proxy {
-        client.set_proxy(Some(Proxy::http(v).unwrap())).unwrap();
-    }
+fn main() {
+    let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    runtime.block_on(async {
+        let options = GlobalOptions::parse();
+        let mut client = Client::new();
+        if let Some(ref v) = options.all_proxy {
+            client.set_proxy(Some(Proxy::all(v).unwrap())).unwrap();
+        } else if let Some(ref v) = options.https_proxy {
+            client.set_proxy(Some(Proxy::https(v).unwrap())).unwrap();
+        } else if let Some(ref v) = options.http_proxy {
+            client.set_proxy(Some(Proxy::http(v).unwrap())).unwrap();
+        }
 
-    //client.set_timeout(Some(Duration::from_secs(5))).unwrap();
+        //client.set_timeout(Some(Duration::from_secs(5))).unwrap();
 
-    let mut user = String::new();
-    let mut passwd = String::new();
+        let mut user = String::new();
+        let mut passwd = String::new();
 
-    let std_in = stdin();
-    let mut std_out = stdout();
+        let std_in = stdin();
+        let mut std_out = stdout();
 
-    print!("User: ");
-    std_out.flush().unwrap();
-    std_in.read_line(&mut user).unwrap();
-    print!("Password: ");
-    std_out.flush().unwrap();
-    std_in.read_line(&mut passwd).unwrap();
+        print!("User: ");
+        std_out.flush().unwrap();
+        std_in.read_line(&mut user).unwrap();
+        print!("Password: ");
+        std_out.flush().unwrap();
+        std_in.read_line(&mut passwd).unwrap();
 
-    if let Err(err) = client
-        .login(&user[..user.len() - 1], &passwd[..passwd.len() - 1])
-        .await
-    {
-        println!("{}", Console::format_error(&err));
-        return;
-    }
+        if let Err(err) = client
+            .login(&user[..user.len() - 1], &passwd[..passwd.len() - 1])
+            .await
+        {
+            println!("{}", Console::format_error(&err));
+            return;
+        }
 
-    match options.subcommand.clone() {
-        SubCommand::Comic(opts) => match opts {
-            ComicOptions::Ranking => {
-                handle::comic::ranking(&mut client, &options).await;
-            }
-            ComicOptions::Metadata { cids, save_dir } => {
-                handle::comic::metadata(&mut client, &options, cids, &save_dir).await;
-            }
-            ComicOptions::Recommended { cids, save_dir } => {
-                handle::comic::recommended(&mut client, &options, cids, &save_dir).await;
-            }
-            ComicOptions::Eps {
-                cid,
-                start,
-                end,
-                save_dir,
-            } => {
-                handle::comic::eps(&mut client, &options, cid, start, end, &save_dir).await;
-            }
-            ComicOptions::Pages {
-                cid,
-                start_index,
-                end_index,
-                start,
-                end,
-                save_dir,
-            } => {
-                handle::comic::pages(
-                    &mut client,
-                    &options,
+        match options.subcommand.clone() {
+            SubCommand::Comic(opts) => match opts {
+                ComicOptions::Ranking => {
+                    handle::comic::ranking(&mut client, &options).await;
+                }
+                ComicOptions::Metadata { cids, save_dir } => {
+                    handle::comic::metadata(&mut client, &options, cids, &save_dir).await;
+                }
+                ComicOptions::Recommended { cids, save_dir } => {
+                    handle::comic::recommended(&mut client, &options, cids, &save_dir).await;
+                }
+                ComicOptions::Eps {
+                    cid,
+                    start,
+                    end,
+                    save_dir,
+                } => {
+                    handle::comic::eps(&mut client, &options, cid, start, end, &save_dir).await;
+                }
+                ComicOptions::Pages {
                     cid,
                     start_index,
                     end_index,
                     start,
                     end,
-                    &save_dir,
-                )
-                .await;
-            }
-            ComicOptions::PicLikeGet {
-                cid,
-                start,
-                end,
-                save_dir,
-            } => {
-                handle::comic::pic_like_get(&mut client, &options, cid, start, end, &save_dir)
+                    save_dir,
+                } => {
+                    handle::comic::pages(
+                        &mut client,
+                        &options,
+                        cid,
+                        start_index,
+                        end_index,
+                        start,
+                        end,
+                        &save_dir,
+                    )
                     .await;
-            }
-            ComicOptions::Search {
-                keyword,
-                start,
-                end,
-                save_dir,
-            } => {
-                handle::comic::search(&mut client, &options, keyword, start, end, &save_dir).await;
-            }
+                }
+                ComicOptions::PicLikeGet {
+                    cid,
+                    start,
+                    end,
+                    save_dir,
+                } => {
+                    handle::comic::pic_like_get(&mut client, &options, cid, start, end, &save_dir)
+                        .await;
+                }
+                ComicOptions::Search {
+                    keyword,
+                    start,
+                    end,
+                    save_dir,
+                } => {
+                    handle::comic::search(&mut client, &options, keyword, start, end, &save_dir).await;
+                }
 
-            ComicOptions::Favourites {
-                start,
-                end,
-                save_dir,
-            } => {
-                handle::comic::favourites(&mut client, &options, start, end, &save_dir).await;
-            }
-            ComicOptions::Download { cids, save_dir } => {
-                handle::comic::download(&mut client, &options, cids, &save_dir).await;
-            }
-        },
-        SubCommand::Game(opts) => match opts {
-            GameOptions::Games {
-                start,
-                end,
-                save_dir,
-            } => {
-                handle::game::games(&mut client, &options, start, end, &save_dir).await;
-            }
-            GameOptions::Info { cids, save_dir } => {
-                handle::game::info(&mut client, &options, cids, &save_dir).await;
-            }
-            GameOptions::Download { cids, save_dir } => {
-                handle::game::download(&mut client, &options, cids, &save_dir).await;
-            }
-        },
-        SubCommand::User(opts) => match opts {
-            UserOptions::PunchIn => {
-                handle::user::punch_in(&mut client).await;
-            }
-            UserOptions::Profile => {
-                handle::user::profile(&mut client).await;
-            }
-        },
-    }
+                ComicOptions::Favourites {
+                    start,
+                    end,
+                    save_dir,
+                } => {
+                    handle::comic::favourites(&mut client, &options, start, end, &save_dir).await;
+                }
+                ComicOptions::Download { cids, save_dir } => {
+                    handle::comic::download(&mut client, &options, cids, &save_dir).await;
+                }
+            },
+            SubCommand::Game(opts) => match opts {
+                GameOptions::Games {
+                    start,
+                    end,
+                    save_dir,
+                } => {
+                    handle::game::games(&mut client, &options, start, end, &save_dir).await;
+                }
+                GameOptions::Info { cids, save_dir } => {
+                    handle::game::info(&mut client, &options, cids, &save_dir).await;
+                }
+                GameOptions::Download { cids, save_dir } => {
+                    handle::game::download(&mut client, &options, cids, &save_dir).await;
+                }
+            },
+            SubCommand::User(opts) => match opts {
+                UserOptions::PunchIn => {
+                    handle::user::punch_in(&mut client).await;
+                }
+                UserOptions::Profile => {
+                    handle::user::profile(&mut client).await;
+                }
+            },
+        }
+    });
 }
