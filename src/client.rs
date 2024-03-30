@@ -161,7 +161,7 @@ impl Client {
                     Err(err) => {
                         Console::clear_line();
                         println!("{:?}", err);
-                        if err.is_timeout() || err.is_connect() || err.is_request() {
+                        if err.is_timeout() || err.is_connect() || err.is_request() || err.is_body() {
                             continue 'restart;
                         } else {
                             break 'restart;
@@ -184,7 +184,7 @@ impl Client {
                     Err(err) => {
                         Console::clear_line();
                         println!("{:?}", err);
-                        if err.is_timeout() || err.is_connect() || err.is_request() {
+                        if err.is_timeout() || err.is_connect() || err.is_request() || err.is_body() {
                             continue 'restart;
                         } else {
                             break 'restart;
@@ -306,7 +306,7 @@ impl Client {
                                 Err(err) => {
                                     Console::clear_line();
                                     println!("{:?}", err);
-                                    if err.is_timeout() || err.is_connect() || err.is_request() {
+                                    if err.is_timeout() || err.is_connect() || err.is_request() || err.is_body() {
                                         continue 'restart;
                                     } else {
                                         break 'restart;
@@ -326,7 +326,7 @@ impl Client {
                                 Err(err) => {
                                     Console::clear_line();
                                     println!("{:?}", err);
-                                    if err.is_timeout() || err.is_connect() || err.is_request() {
+                                    if err.is_timeout() || err.is_connect() || err.is_request() || err.is_body() {
                                         continue 'restart;
                                     } else {
                                         break 'restart;
