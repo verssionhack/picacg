@@ -147,6 +147,7 @@ impl Client {
                 match request
                     .try_clone()
                     .unwrap()
+                    .timeout(Duration::from_secs(60 * 10))
                     .header(
                         "range",
                         format!("bytes={}-", completed_length.as_byte()),
