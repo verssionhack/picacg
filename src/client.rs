@@ -172,6 +172,7 @@ impl Client {
             if completed_length == length {
                 break;
             }
+            let mut timer = Instant::now();
             while completed_length < length {
                 match download_handle.chunk().await {
                     Ok(chunk) => {
@@ -190,12 +191,15 @@ impl Client {
                         }
                     }
                 }
-                Console::clear_line();
-                print!(
-                    "{}",
-                    Console::format_download_game(completed_length, length, &file_path_str)
-                );
-                stdout().flush().unwrap();
+                if timer.elapsed().as_secs() >= 1 {
+                    Console::clear_line();
+                    print!(
+                        "{}",
+                        Console::format_download_game(completed_length, length, &file_path_str)
+                    );
+                    stdout().flush().unwrap();
+                    timer = Instant::now();
+                }
             }
         }
         Console::clear_line();
