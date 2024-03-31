@@ -11,3 +11,6 @@ reqwest = "0.11.26"
 tokio = { version = "1.36.0", features = ["full"] }
 libpicacg = { git = "https://github.com/verssionhack/libpicacg.git" }
 size_utils = { git = "https://github.com/verssionhack/size_utils.git" }
+configer = { git = "https://github.com/verssionhack/configer.git" }
+serde = "1.0"
+serde_json = "1.0"

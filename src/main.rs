@@ -2,13 +2,15 @@
 
 use clap::Parser;
 use client::Client;
+use configer::Configer;
 use console::Console;
 
 use picacg::command::{ComicOptions, GameOptions, GlobalOptions, SubCommand, UserOptions};
 use reqwest::Proxy;
+use serde::{Deserialize, Serialize};
 use std::{
     io::{stdin, stdout, Write},
-    time::Duration,
+    time::Duration, env,
 };
 
 mod client;
@@ -457,6 +459,7 @@ mod handle {
             client: &mut Client,
             options: &GlobalOptions,
             cids: Vec<String>,
+            description: bool,
             _save_dir: &str,
         ) {
             let save_dir = PathBuf::from_str(&options.save_dir).unwrap();
@@ -464,6 +467,9 @@ mod handle {
                 match client.game_info(&cid).await {
                     Ok(res) => {
                         println!("{}", Console::format_game_info(&res));
+                        if description {
+                            println!("{}", res.description.as_ref().map(|s| s.as_str()).unwrap_or(""));
+                        }
                         if options.download {
                             while let Err(err) = client
                                 .game_download(&res.id, save_dir.join(_save_dir).to_str().unwrap())
@@ -539,6 +545,13 @@ mod handle {
     }
 }
 
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Config {
+    user: String,
+    password: String,
+}
+
 fn main() {
     let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
     runtime.block_on(async {
@@ -552,28 +565,41 @@ fn main() {
             client.set_proxy(Some(Proxy::http(v).unwrap())).unwrap();
         }
 
+        let configer = Configer::new(&env::var("HOME").unwrap());
+
+
         client.set_timeout(Some(Duration::from_secs(5))).unwrap();
 
-        let mut user = String::new();
-        let mut passwd = String::new();
+        let config: Config = if let Some(Ok(cfg)) = configer.read(".config/picacg/config") {
+            cfg
+        } else {
+            let mut user = String::new();
+            let mut passwd = String::new();
 
-        let std_in = stdin();
-        let mut std_out = stdout();
+            let std_in = stdin();
+            let mut std_out = stdout();
+            print!("User: ");
+            std_out.flush().unwrap();
+            std_in.read_line(&mut user).unwrap();
+            print!("Password: ");
+            std_out.flush().unwrap();
+            std_in.read_line(&mut passwd).unwrap();
+            Config {
+                user: user[..user.len() - 1].to_owned(),
+                password: passwd[..passwd.len() - 1].to_owned(),
+            }
+        };
 
-        print!("User: ");
-        std_out.flush().unwrap();
-        std_in.read_line(&mut user).unwrap();
-        print!("Password: ");
-        std_out.flush().unwrap();
-        std_in.read_line(&mut passwd).unwrap();
+
 
         if let Err(err) = client
-            .login(&user[..user.len() - 1], &passwd[..passwd.len() - 1])
+            .login(&config.user, &config.password)
             .await
         {
             println!("{}", Console::format_error(&err));
             return;
         }
+        configer.write(".config/picacg/config", &config);
 
         match options.subcommand.clone() {
             SubCommand::Comic(opts) => match opts {
@@ -651,8 +677,8 @@ fn main() {
                 } => {
                     handle::game::games(&mut client, &options, start, end, &save_dir).await;
                 }
-                GameOptions::Info { cids, save_dir } => {
-                    handle::game::info(&mut client, &options, cids, &save_dir).await;
+                GameOptions::Info { cids, save_dir, description } => {
+                    handle::game::info(&mut client, &options, cids, description, &save_dir).await;
                 }
                 GameOptions::Download { cids, save_dir } => {
                     handle::game::download(&mut client, &options, cids, &save_dir).await;

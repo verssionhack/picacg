@@ -116,6 +116,8 @@ pub enum GameOptions {
     Info {
         #[clap(short='c', long="cids", action=ArgAction::Append)]
         cids: Vec<String>,
+        #[clap(short='d', long="description", action=ArgAction::SetTrue, default_value="false")]
+        description: bool,
         #[clap(short = 'o', long = "save-dir", default_value = ".")]
         save_dir: String,
     },

@@ -106,6 +106,8 @@ impl Client {
             .game_download_info_get(&game_info.android_links[0])
             .await?;
 
+        println!("{}", &download_info.description);
+
         let download_url = &download_info.download.node[0];
         file_path.set_extension(download_url.as_str().rsplit_once('.').unwrap().1);
         let file_path_str = file_path
